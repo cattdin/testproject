@@ -1,0 +1,171 @@
+import sqlite3
+import pandas as pd
+
+# Connects to an existing database file in the current directory
+# If the file does not exist, it creates it in the current directory
+db_connect = sqlite3.connect('RU.db')
+
+# Instantiate cursor object for executing queries
+cursor = db_connect.cursor()
+
+# String variable for passing queries to cursor
+# Execute query, the result is stored in cursor
+##############create tables####################
+query = """ CREATE TABLE `Department` (
+  dNo INT(200) NOT NULL,
+  dName varchar(200) NOT NULL CHECK (dName LIKE 'Department %'),
+  cName INT(200) NOT NULL,
+  countStaff varchar(200) NOT NULL,
+  PRIMARY KEY(dNo)
+);
+    """
+cursor.execute(query)
+
+query = """ CREATE TABLE `Major` (
+  `mName` varchar(200) NOT NULL,
+  `mID` INT(200) NOT NULL,
+  `code` varchar(3) NOT NULL CHECK (length(code) = 3),
+  `dNo` varchar(200) NOT NULL,
+  PRIMARY KEY (mID),
+  FOREIGN KEY (dNo) REFERENCES Department(dNo)
+  
+) ;
+    """
+
+cursor.execute(query)
+
+query = """ CREATE TABLE `Event` (
+  `eName` varchar(200) NOT NULL,
+  `eID` INT(200) NOT NULL,
+  `startDate` varchar(200) NOT NULL,
+  `endDate` varchar(200) NOT NULL,
+  PRIMARY KEY (eID),
+  CONSTRAINT CheckEndLaterThanStart CHECK (endDate >= startDate)
+  
+);
+    """
+cursor.execute(query)
+
+query = """ CREATE TABLE `Student` (
+  `sfName` varchar(200) NOT NULL,
+  `slName` varchar(200) NOT NULL,
+  `sInitial` varchar(200) NOT NULL CHECK (length(sInitial) >1),
+  `sID` INT(200) NOT NULL,
+   PRIMARY KEY (sID)
+);
+    """
+cursor.execute(query)
+
+###############3 relationships####################
+query = """ CREATE TABLE `Eventinfo` (
+  `dNo` INT(200) NOT NULL,
+  `eID` INT(200) NOT NULL,
+   PRIMARY KEY (dNo, eID),
+   FOREIGN KEY (eID) REFERENCES Event(eID),
+   FOREIGN KEY (dNo) REFERENCES Department(dNo)
+);
+    """
+cursor.execute(query)
+
+query = """ CREATE TABLE `Enrollment` (
+  `sID` INT(200) NOT NULL,
+  `mID` INT(200) NOT NULL,
+   PRIMARY KEY (sID, mID),
+   FOREIGN KEY (mID) REFERENCES Major(mID),
+   FOREIGN KEY (sID) REFERENCES Student(sID)
+);
+    """
+cursor.execute(query)
+
+
+query = """ CREATE TABLE `Participation` (
+  `sID` INT(200) NOT NULL,
+  `eID` INT(200) NOT NULL,
+   PRIMARY KEY (sID, eID),
+   FOREIGN KEY (sID) REFERENCES Student(sID),
+   FOREIGN KEY (eID) REFERENCES Event(eID)
+);
+    """
+cursor.execute(query)
+
+
+
+###############Insert row into table####################
+query = """
+    INSERT INTO `Department` (`dName`, `cName`, `countStaff`, `dNo`) 
+    VALUES ('Department of History', 'John Smith', '12', '1'), 
+    ('Department of Physics', 'Kenny Hubbard', '22', '2'), 
+    ('Department of English ', 'Kenneth Floyd', '32', '3'), 
+    ('Department of Psychology', 'Leslie Thornton', '42', '4'), 
+    ('Department of Art and Science', 'Gilbert Stephens', '52', '5');
+    """
+cursor.execute(query)
+query = """
+    INSERT INTO `Major` (`mName`, `mID`, `code`, `dNo`) 
+    VALUES ('American history', '1', 'AMH', '1'), 
+    ('European history', '2', 'EUH', '1'), 
+    ('General Psychology Concentration', '3', 'GPC', '4'), 
+    ('Computer Science', '4', 'CSC', '5'), 
+    ('Language Arts Literacy ', '5', 'LAL', '3');
+    """
+cursor.execute(query)
+query = """
+    INSERT INTO `Student` (`sfName`, `slName`, `sInitial`, `sID`) 
+    VALUES ('Yunting', 'Zhao', 'YZ', '1'), 
+    ('Dominick ', 'Townsend', 'DT', '2'), 
+    ('Yiyi', 'He', 'YH', '3'), 
+    ('Liuhu', 'Lan', 'LL', '4'), 
+    ('Qiao', 'Chu', 'QC', '5');
+    """
+cursor.execute(query)
+query = """
+    INSERT INTO `Event` (`eName`, `eID`, `startDate`, `endDate`) 
+    VALUES ('event1', '1', '2021-12-18', '2021-12-19'), 
+    ('event2', '2', '2021-12-20', '2021-12-21'), 
+    ('event3', '3', '2021-12-22', '2021-12-23'), 
+    ('event4', '4', '2021-12-24', '2021-12-25'), 
+    ('event5', '5', '2021-12-26', '2021-12-27');
+    """
+cursor.execute(query)
+query = """
+    INSERT INTO `Enrollment` (`sID`, `mID`) 
+    VALUES ('1', '1'),
+    ('2', '2'),
+    ('3', '3'),
+    ('4', '4'),
+    ('5', '4');
+    """
+cursor.execute(query)
+query = """
+    INSERT INTO `Eventinfo` (`dNo`, `eID`) 
+    VALUES ('1', '1'), 
+    ('2', '2'), 
+    ('3', '3'), 
+    ('4', '4'), 
+    ('5', '5');
+    """
+cursor.execute(query)
+query = """
+    INSERT INTO `Participation` (`sID`, `eID`)
+    VALUES ('1', '1'), 
+    ('2', '2'), 
+    ('3', '3'), 
+    ('4', '4'), 
+    ('5', '5');
+    """
+cursor.execute(query)
+
+
+query = """
+    SELECT *
+    FROM Event
+    """
+cursor.execute(query)
+column_names = [row[0] for row in cursor.description]
+table_data = cursor.fetchall()
+df= pd.DataFrame(table_data, columns=column_names)
+
+db_connect.commit()
+
+db_connect.close()
+df
