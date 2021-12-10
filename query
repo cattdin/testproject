@@ -1,0 +1,99 @@
+1.
+
+query = """
+  SELECT *
+FROM Student
+WHERE slName LIKE 'Zhao%'
+    """
+cursor.execute(query)
+column_names = [row[0] for row in cursor.description]
+table_data = cursor.fetchall()
+df= pd.DataFrame(table_data, columns=column_names)
+
+db_connect.commit()
+
+# db_connect.close()
+df
+
+
+
+2.
+
+query = """
+SELECT sfName, Event.*
+FROM Event, Student 
+JOIN Participation
+ON Event.eID = Participation.eID AND Participation.sID = Student .sID
+Where Student .sfName = 'Yunting' 
+
+    """
+cursor.execute(query)
+column_names = [row[0] for row in cursor.description]
+table_data = cursor.fetchall()
+df= pd.DataFrame(table_data, columns=column_names)
+
+db_connect.commit()
+
+# db_connect.close()
+df
+
+
+
+3.
+
+
+query = """
+SELECT sfName, Major.code
+FROM Major, Student 
+JOIN Enrollment
+ON Major.mID = Enrollment.mID AND Enrollment.sID = Student .sID
+Where Student .sfName = 'Yunting' 
+
+    """
+cursor.execute(query)
+column_names = [row[0] for row in cursor.description]
+table_data = cursor.fetchall()
+df= pd.DataFrame(table_data, columns=column_names)
+
+db_connect.commit()
+
+# db_connect.close()
+df
+
+
+4.
+query = """
+SELECT Major.*
+FROM Major
+ 
+
+    """
+cursor.execute(query)
+column_names = [row[0] for row in cursor.description]
+table_data = cursor.fetchall()
+df= pd.DataFrame(table_data, columns=column_names)
+
+db_connect.commit()
+
+# db_connect.close()
+df
+
+
+5.
+
+
+query = """
+SELECT Event.*
+FROM Event
+ 
+
+    """
+cursor.execute(query)
+column_names = [row[0] for row in cursor.description]
+table_data = cursor.fetchall()
+df= pd.DataFrame(table_data, columns=column_names)
+
+db_connect.commit()
+
+# db_connect.close()
+df
